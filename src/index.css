@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+/* Brutalist Design System - Global Styles */
+
+body {
+  background-color: rgb(250 250 250);
+  color: rgb(23 23 23);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+}
+
+/* Remove number input arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Brutalist Button */
+.btn-brutalist {
+  padding: 0.75rem 1.5rem;
+  background-color: black;
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 4px solid black;
+  transition: all 100ms;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-brutalist:hover {
+  background-color: white;
+  color: black;
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-brutalist:active {
+  transform: translate(1px, 1px);
+}
+
+.btn-brutalist-secondary {
+  padding: 0.75rem 1.5rem;
+  background-color: white;
+  color: black;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 4px solid black;
+  transition: all 100ms;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-brutalist-secondary:hover {
+  background-color: black;
+  color: white;
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-brutalist-secondary:active {
+  transform: translate(1px, 1px);
+}
+
+.btn-brutalist-danger {
+  padding: 0.75rem 1.5rem;
+  background-color: rgb(220 38 38);
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 4px solid black;
+  transition: all 100ms;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-brutalist-danger:hover {
+  background-color: white;
+  color: rgb(220 38 38);
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-brutalist-danger:active {
+  transform: translate(1px, 1px);
+}
+
+.btn-brutalist-success {
+  padding: 0.75rem 1.5rem;
+  background-color: rgb(22 163 74);
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 4px solid black;
+  transition: all 100ms;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-brutalist-success:hover {
+  background-color: white;
+  color: rgb(22 163 74);
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-brutalist-success:active {
+  transform: translate(1px, 1px);
+}
+
+/* Brutalist Input */
+.input-brutalist {
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border: 4px solid black;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-weight: 700;
+  color: black;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.input-brutalist:focus {
+  outline: none;
+  border-color: black;
+}
+
+.input-brutalist::placeholder {
+  color: rgb(163 163 163);
+}
+
+/* Brutalist Card */
+.card-brutalist {
+  background-color: white;
+  border: 4px solid black;
+  padding: 1.5rem;
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+}
+
+/* Utility Classes */
+.shadow-brutalist {
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.shadow-brutalist-sm {
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.shadow-brutalist-lg {
+  box-shadow: 12px 12px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.text-brutalist {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
