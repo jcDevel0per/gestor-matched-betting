@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     signOut,
     onAuthStateChanged
 } from 'firebase/auth';
@@ -18,34 +20,77 @@ export const useAuth = () => {
     return context;
 };
 
+// Helper to create/update user document in Firestore
+const ensureUserDocument = async (user) => {
+    if (!user) return;
+    try {
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            await setDoc(userRef, {
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                createdAt: serverTimestamp()
+            });
+        }
+    } catch (firestoreError) {
+        console.warn('Could not create user document (non-blocking):', firestoreError);
+    }
+};
+
 export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [authError, setAuthError] = useState(null);
 
-    // Login with Google
+    // Handle redirect result on page load
+    useEffect(() => {
+        const handleRedirectResult = async () => {
+            try {
+                const result = await getRedirectResult(auth);
+                if (result?.user) {
+                    console.log('Redirect login successful:', result.user.email);
+                    await ensureUserDocument(result.user);
+                }
+            } catch (error) {
+                console.error('Redirect result error:', error.code, error.message);
+                setAuthError(error);
+            }
+        };
+
+        handleRedirectResult();
+    }, []);
+
+    // Login with Google - try popup first, fall back to redirect
     const loginWithGoogle = async () => {
+        setAuthError(null);
         try {
+            // Try popup first
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
+            await ensureUserDocument(user);
+            return user;
+        } catch (popupError) {
+            console.warn('Popup login failed, trying redirect...', popupError.code, popupError.message);
 
-            // Create or update user document in Firestore
-            const userRef = doc(db, 'users', user.uid);
-            const userSnap = await getDoc(userRef);
-
-            if (!userSnap.exists()) {
-                // Create new user document
-                await setDoc(userRef, {
-                    email: user.email,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                    createdAt: serverTimestamp()
-                });
+            // If popup was closed by user, don't fallback to redirect
+            if (popupError.code === 'auth/popup-closed-by-user' ||
+                popupError.code === 'auth/cancelled-popup-request') {
+                throw popupError;
             }
 
-            return user;
-        } catch (error) {
-            console.error('Error signing in with Google:', error);
-            throw error;
+            // For all other errors (blocked popup, cross-origin, etc.), try redirect
+            try {
+                await signInWithRedirect(auth, googleProvider);
+                // This won't return - the page will redirect to Google
+                // Result will be handled by getRedirectResult on page reload
+                return null;
+            } catch (redirectError) {
+                console.error('Redirect login also failed:', redirectError.code, redirectError.message);
+                throw redirectError;
+            }
         }
     };
 
@@ -73,7 +118,8 @@ export const AuthProvider = ({ children }) => {
         currentUser,
         loginWithGoogle,
         logout,
-        loading
+        loading,
+        authError
     };
 
     return (

@@ -1,24 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { AlertCircle } from 'lucide-react';
 
+// Map Firebase error codes to user-friendly messages
+const getErrorMessage = (error) => {
+    const code = error?.code || '';
+    switch (code) {
+        case 'auth/popup-closed-by-user':
+            return 'LOGIN CANCELADO. TENTE NOVAMENTE.';
+        case 'auth/cancelled-popup-request':
+            return 'LOGIN CANCELADO. TENTE NOVAMENTE.';
+        case 'auth/popup-blocked':
+            return 'POPUP BLOQUEADO. PERMITA POPUPS OU AGUARDE O REDIRECIONAMENTO.';
+        case 'auth/unauthorized-domain':
+            return 'DOMÍNIO NÃO AUTORIZADO. ADICIONE ESTE DOMÍNIO NO FIREBASE CONSOLE → AUTHENTICATION → SETTINGS → AUTHORIZED DOMAINS.';
+        case 'auth/configuration-not-found':
+            return 'AUTENTICAÇÃO NÃO CONFIGURADA. ATIVE O GOOGLE AUTH NO FIREBASE CONSOLE.';
+        case 'auth/internal-error':
+            return 'ERRO INTERNO DO FIREBASE. VERIFIQUE SE O GOOGLE AUTH ESTÁ ATIVADO NO CONSOLE.';
+        case 'auth/network-request-failed':
+            return 'ERRO DE REDE. VERIFIQUE SUA CONEXÃO COM A INTERNET.';
+        case 'auth/too-many-requests':
+            return 'MUITAS TENTATIVAS. AGUARDE ALGUNS MINUTOS.';
+        default:
+            console.error('Firebase auth error:', code, error?.message);
+            return `ERRO AO FAZER LOGIN (${code || 'DESCONHECIDO'}). TENTE NOVAMENTE.`;
+    }
+};
+
 const Login = () => {
-    const { loginWithGoogle } = useAuth();
+    const { loginWithGoogle, authError, currentUser } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // If user is already logged in (e.g. after redirect), navigate to home
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/');
+        }
+    }, [currentUser, navigate]);
+
+    // Show redirect errors from AuthContext
+    useEffect(() => {
+        if (authError) {
+            setError(getErrorMessage(authError));
+        }
+    }, [authError]);
 
     const handleGoogleLogin = async () => {
         try {
             setError('');
             setLoading(true);
-            await loginWithGoogle();
-            navigate('/');
+            const user = await loginWithGoogle();
+            // If user is null, it means we're doing a redirect (page will reload)
+            if (user) {
+                navigate('/');
+            }
+            // If redirect, loading stays true until page reloads
         } catch (error) {
             console.error('Login error:', error);
-            setError('ERRO AO FAZER LOGIN. TENTE NOVAMENTE.');
-        } finally {
+            setError(getErrorMessage(error));
             setLoading(false);
         }
     };
