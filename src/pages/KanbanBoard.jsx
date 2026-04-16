@@ -112,8 +112,12 @@ const KanbanBoard = () => {
             setShowModal(true);
             showSuccess('CICLO CRIADO COM SUCESSO!');
         } catch (error) {
-            console.error('Error creating cycle:', error);
-            showError('ERRO AO CRIAR CICLO');
+            console.error('Error creating cycle:', error.code, error.message, error);
+            if (error.code === 'permission-denied' || error.code === 'PERMISSION_DENIED') {
+                showError('SEM PERMISSÃO PARA CRIAR CICLO. VERIFIQUE AS REGRAS DO FIRESTORE.');
+            } else {
+                showError('ERRO AO CRIAR CICLO: ' + (error.code || error.message || 'DESCONHECIDO'));
+            }
         }
     };
 
@@ -199,12 +203,18 @@ const KanbanBoard = () => {
     const handleSaveCycle = async (updatedCycle) => {
         try {
             const cycleRef = doc(db, 'users', currentUser.uid, 'cycles', updatedCycle.id);
-            await updateDoc(cycleRef, updatedCycle);
+            // Remove 'id' field before sending to Firestore (it's the document key, not a field)
+            const { id, ...cycleData } = updatedCycle;
+            await updateDoc(cycleRef, cycleData);
             setSelectedCycle(updatedCycle);
             showSuccess('PROGRESSO SALVO COM SUCESSO!');
         } catch (error) {
-            console.error('Error saving cycle:', error);
-            showError('ERRO AO SALVAR CICLO');
+            console.error('Error saving cycle:', error.code, error.message, error);
+            if (error.code === 'permission-denied' || error.code === 'PERMISSION_DENIED') {
+                showError('SEM PERMISSÃO. VERIFIQUE AS REGRAS DO FIRESTORE.');
+            } else {
+                showError('ERRO AO SALVAR CICLO: ' + (error.code || error.message || 'DESCONHECIDO'));
+            }
         }
     };
 
@@ -234,8 +244,8 @@ const KanbanBoard = () => {
             setSelectedCycle(cycleWithNewStage);
             showSuccess(`CICLO AVANÇADO PARA ${nextStage.toUpperCase()} !`);
         } catch (error) {
-            console.error('Error advancing stage:', error);
-            showError('ERRO AO AVANÇAR ETAPA');
+            console.error('Error advancing stage:', error.code, error.message, error);
+            showError('ERRO AO AVANÇAR ETAPA: ' + (error.code || error.message || 'DESCONHECIDO'));
         }
     };
 
@@ -255,8 +265,8 @@ const KanbanBoard = () => {
             setSelectedCycle(null);
             showSuccess('CICLO FINALIZADO COM SUCESSO!');
         } catch (error) {
-            console.error('Error finalizing cycle:', error);
-            showError('ERRO AO FINALIZAR CICLO');
+            console.error('Error finalizing cycle:', error.code, error.message, error);
+            showError('ERRO AO FINALIZAR CICLO: ' + (error.code || error.message || 'DESCONHECIDO'));
         }
     };
 
